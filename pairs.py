@@ -23,8 +23,8 @@ def find_sums(inputs, sum_to_find=10):
                 current_pair = [inputs[i], inputs[j]]
                 current_pair.sort()
                 pairs.append(current_pair)
-            j = j + 1
-        i = i + 1
+            j += 1
+        i += 1
     print("Unique pairs:")
     unique_pairs = set(tuple(current_pair) for current_pair in pairs)
     for current_pair in unique_pairs:
