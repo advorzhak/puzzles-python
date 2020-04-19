@@ -3,7 +3,7 @@ import sys
 import re
 
 from consolemenu import ConsoleMenu, MultiSelectMenu
-from consolemenu.items import FunctionItem, SubmenuItem, SelectionItem, MenuItem
+from consolemenu.items import FunctionItem, SubmenuItem, SelectionItem, MenuItem, ExitItem
 
 
 def get_directory_content(directory: str = None, only_files: bool = False):
@@ -29,7 +29,7 @@ def show_tasks_menu():
                     "Amount of \"z\" in file",
                     "Amount of \"and\" in file",
                     "All of them"]
-    statistic_items_menu = MultiSelectMenu("Select items, you want to do:",  exit_option_text='Continue')
+    statistic_items_menu = MultiSelectMenu("Select items, you want to do:", exit_option_text='Continue')
     i = 0
     tasks_to_do = []
     for current_item in options_list:
@@ -47,38 +47,31 @@ def show_tasks_menu():
 
 def get_statistic(file_path: str):
     tasks_to_do = show_tasks_menu()
+    tasks_to_do = {True: [0, 1, 2, 3, 4], False: tasks_to_do}[5 in tasks_to_do or len(tasks_to_do) == 5]
     print("File: {0}".format(file_path))
     num_lines = 0
-    num_lines_with_z = 0
     num_empty_lines = 0
     z_occurrences = 0
-    and_occurrences = 0
+    num_lines_with_z = 0
+    num_lines_with_and = 0
     for line in open(file_path, 'rb'):
-        z_per_line = 0
-        if (5 in tasks_to_do) or (0 in tasks_to_do):
-            num_lines += + 1
-        if not line.strip() and ((5 in tasks_to_do) or (1 in tasks_to_do)):
-            num_empty_lines += + 1
-        if (5 in tasks_to_do) or (2 in tasks_to_do) or (3 in tasks_to_do):
-            z_per_line = str(line).count("z")
-        if (5 in tasks_to_do) or (3 in tasks_to_do):
-            z_occurrences += z_per_line
-        if z_per_line > 0 and ((5 in tasks_to_do) or (2 in tasks_to_do)):
-            num_lines_with_z += + 1
-        if (5 in tasks_to_do) or (4 in tasks_to_do):
-            and_per_line = str(line).count("and")
-            and_occurrences += and_per_line
+        num_lines += {True: 1, False: 0}[0 in tasks_to_do]
+        num_empty_lines += {True: int(not bool(line.strip())), False: 0}[1 in tasks_to_do]
+        z_per_line = {True: str(line).count("z"), False: 0}[2 in tasks_to_do or 3 in tasks_to_do]
+        z_occurrences += z_per_line
+        num_lines_with_z += int(bool(z_per_line))
+        num_lines_with_and += {True: int(bool(str(line).count("and"))), False: 0}[4 in tasks_to_do]
 
-    if (5 in tasks_to_do) or (0 in tasks_to_do):
-        print("Amount of lines in {0}:\t{1}".format(file_path, num_lines))
-    if (5 in tasks_to_do) or (1 in tasks_to_do):
-        print("Amount of empty lines in {0}:\t{1}".format(file_path, num_empty_lines))
-    if (5 in tasks_to_do) or (2 in tasks_to_do):
-        print("Amount of lines with \"z\" in {0}:\t{1}".format(file_path, num_lines_with_z))
-    if (5 in tasks_to_do) or (3 in tasks_to_do):
-        print("Amount of \"z\" in {0}:\t{1}".format(file_path, z_occurrences))
-    if (5 in tasks_to_do) or (4 in tasks_to_do):
-        print("Amount of \"and\" in {0}:\t{1}".format(file_path, and_occurrences))
+    for current_task in tasks_to_do:
+        result_string = {
+            0: lambda: "Amount of lines in {0}:\t{1}".format(file_path, num_lines),
+            1: lambda: "Amount of empty lines in {0}:\t{1}".format(file_path, num_empty_lines),
+            2: lambda: "Amount of lines with \"z\" in {0}:\t{1}".format(file_path, num_lines_with_z),
+            3: lambda: "Amount of \"z\" in {0}:\t{1}".format(file_path, z_occurrences),
+            4: lambda: "Amount of lines with \"and\" in {0}:\t{1}".format(file_path, num_lines_with_and),
+        }[current_task]()
+        print(result_string)
+
     input("Press Enter to continue...")
 
 
@@ -98,7 +91,8 @@ def output_console_menu():
             for current_subdir_item in sub_directory_content:
                 current_sub_menu.append_item(FunctionItem(current_subdir_item,
                                                           get_statistic,
-                                                          [current_dir_item_path + os.path.sep + current_subdir_item, ]))
+                                                          [
+                                                              current_dir_item_path + os.path.sep + current_subdir_item, ]))
             file_selection_menu.append_item(SubmenuItem(current_dir_item + os.path.sep, current_sub_menu))
     file_selection_menu.show()
 
