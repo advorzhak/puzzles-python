@@ -6,13 +6,17 @@ from consolemenu import ConsoleMenu, MultiSelectMenu
 from consolemenu.items import FunctionItem, SubmenuItem, SelectionItem, MenuItem, ExitItem
 
 
+tasks_list = ["Amount of lines in file",
+              "Amount of empty lines in file",
+              "Amount of lines with \"z\" in file",
+              "Amount of \"z\" in file",
+              "Amount of \"and\" in file",
+              "All of them"]
+
+
 def get_directory_content(directory: str = None, only_files: bool = False):
-    directory_content = None
     result_list = []
-    if not directory:
-        directory_content = os.listdir(os.getcwd())
-    else:
-        directory_content = os.listdir(directory)
+    directory_content = {True: os.listdir(os.getcwd()), False: os.listdir(directory)}[directory is None]
     if only_files:
         for current_item in directory_content:
             if os.path.isfile(directory + os.path.sep + current_item):
@@ -22,17 +26,11 @@ def get_directory_content(directory: str = None, only_files: bool = False):
     return result_list
 
 
-def show_tasks_menu():
-    options_list = ["Amount of lines in file",
-                    "Amount of empty lines in file",
-                    "Amount of lines with \"z\" in file",
-                    "Amount of \"z\" in file",
-                    "Amount of \"and\" in file",
-                    "All of them"]
+def show_tasks_menu(menu_items: list):
     statistic_items_menu = MultiSelectMenu("Select items, you want to do:", exit_option_text='Continue')
     i = 0
     tasks_to_do = []
-    for current_item in options_list:
+    for current_item in menu_items:
         statistic_items_menu.append_item(FunctionItem(current_item,
                                                       lambda item: tasks_to_do.append(item),
                                                       [i, ],
@@ -40,13 +38,11 @@ def show_tasks_menu():
         i += 1
     statistic_items_menu.show()
 
-    if not tasks_to_do:
-        tasks_to_do.append(5)
-    return tasks_to_do
+    return {True: [0, 1, 2, 3, 4], False: tasks_to_do}[tasks_to_do in [None, []]]
 
 
-def get_statistic(file_path: str):
-    tasks_to_do = show_tasks_menu()
+def get_statistic(file_path: str, options_list: list):
+    tasks_to_do = show_tasks_menu(options_list)
     tasks_to_do = {True: [0, 1, 2, 3, 4], False: tasks_to_do}[5 in tasks_to_do or len(tasks_to_do) == 5]
     print("File: {0}".format(file_path))
     num_lines = 0
@@ -84,15 +80,14 @@ def output_console_menu():
         if os.path.isfile(current_dir_item_path):
             file_selection_menu.append_item(FunctionItem(current_dir_item,
                                                          get_statistic,
-                                                         [current_dir_item_path, ]))
+                                                         [current_dir_item_path, tasks_list]))
         elif os.path.isdir(current_dir_item_path):
             current_sub_menu = ConsoleMenu("Select file from:", current_dir_item_path)
-            sub_directory_content = get_directory_content(current_dir_item_path, True)
-            for current_subdir_item in sub_directory_content:
+            for current_subdir_item in get_directory_content(current_dir_item_path, True):
                 current_sub_menu.append_item(FunctionItem(current_subdir_item,
                                                           get_statistic,
                                                           [
-                                                              current_dir_item_path + os.path.sep + current_subdir_item, ]))
+                                                              current_dir_item_path + os.path.sep + current_subdir_item, tasks_list]))
             file_selection_menu.append_item(SubmenuItem(current_dir_item + os.path.sep, current_sub_menu))
     file_selection_menu.show()
 
