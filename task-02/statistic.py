@@ -1,10 +1,7 @@
 import os
-import sys
-import re
 
 from consolemenu import ConsoleMenu, MultiSelectMenu
-from consolemenu.items import FunctionItem, SubmenuItem, SelectionItem, MenuItem, ExitItem
-
+from consolemenu.items import FunctionItem, SubmenuItem
 
 tasks_list = ["Amount of lines in file",
               "Amount of empty lines in file",
