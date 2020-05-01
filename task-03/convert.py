@@ -1,10 +1,11 @@
-import inflect
-
+from conversations.input import Input
+from conversations.covnertations import Transform
 
 def main():
-
-    p = inflect.engine()
-    print(p.number_to_words(1345))
+    console_input = Input()
+    console_input.read_value()
+    transform = Transform(console_input.get_value())
+    transform.print_number_into_words()
 
 
 if __name__ == "__main__":
