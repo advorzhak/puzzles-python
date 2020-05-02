@@ -1,5 +1,6 @@
-from conversations.input import Input
-from conversations.covnertations import Transform
+from convertations.input import Input
+from convertations.convertations import Transform
+
 
 def main():
     console_input = Input()
