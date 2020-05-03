@@ -1,13 +1,5 @@
 import sys
-import re
-
-
-def isfloat(value):
-    try:
-        float(value)
-        return True
-    except ValueError:
-        return False
+import contextlib
 
 
 def find_sums(inputs, sum_to_find=10):
@@ -30,14 +22,8 @@ def find_sums(inputs, sum_to_find=10):
 def main():
     inputs = []
     for current_input in sys.argv[1:]:
-        current_input_parsed = re.findall('^((\"|\'){0,2})([\d.]*)((\"|\'){0,2})$', current_input)
-        if current_input_parsed and isfloat(current_input_parsed[0][2]):
-            if current_input_parsed != "NaN":
-                inputs.append(float(current_input_parsed[0][2]))
-            else:
-                print("\"{0}\" - is NaN, ommited.".format(current_input_parsed[0][2]))
-        else:
-            print("\"{0}\" - isn't figure, ommited.".format(current_input))
+        with contextlib.suppress(ValueError):
+            inputs.append(float(current_input))
     find_sums(inputs)
 
 
